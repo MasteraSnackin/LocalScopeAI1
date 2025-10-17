@@ -71,6 +71,8 @@ const prompt = ai.definePrompt({
   - **Amenities & Recreation**: Detailed information on local parks, playgrounds, specific types of shops (e.g., supermarkets, boutiques, etc.), restaurants, and family-friendly leisure facilities.
   - **Health & Wellbeing**: Details on nearby healthcare services including GPs, dentists, paediatric services, and major hospitals with their specialities.
   - **Social & Community**: Information on local demographics, community centres, libraries, family-oriented community events or groups, and population age distribution.
+  - **Broadband Speed**: Information on average and maximum broadband speeds available in the area, including fibre availability.
+  - **Demographics**: Overview of the local population including age distribution, household types, and general socio-economic status.
 
   **2. If persona is 'developer':**
   - **Planning & Development**: Recent planning applications and decisions, local development plans, and potential for new builds or redevelopments. Identify brownfield sites if possible.
