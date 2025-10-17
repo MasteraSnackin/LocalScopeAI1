@@ -34,7 +34,7 @@ export default function InteractiveMap({ postcode }: { postcode: string }) {
         <MapPin className="h-4 w-4" />
         <AlertTitle>Google Maps API Key Missing</AlertTitle>
         <AlertDescription>
-          Please add your Google Maps API key to a `.env.local` file to enable the interactive map.
+          Please add your Google Maps API key to the .env.local file to enable the interactive map.
         </AlertDescription>
       </Alert>
     );
