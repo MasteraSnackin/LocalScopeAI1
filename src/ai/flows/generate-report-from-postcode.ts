@@ -42,7 +42,16 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert in UK local area information.
 
   Generate a report summarizing key local area information for the given UK postcode.
-  The report should include an executive summary, report sections with titles and content, and citations for the information provided.
+  
+  The report MUST include the following sections:
+  1.  **Executive Summary**: A concise overview of the key findings.
+  2.  **Housing**: Include average prices for different property types (detached, semi-detached, terraced, flats), recent price trends (e.g., 12-month change), and a summary of the local rental market.
+  3.  **Local Schools**: List at least 5-10 nearby primary and secondary schools. For each school, provide its name, type (e.g., Primary, Secondary), and latest Ofsted rating (e.g., Outstanding, Good, Requires Improvement).
+  4.  **Crime & Safety**: A summary of local crime statistics and safety information.
+  5.  **Transport Links**: An overview of major train, bus, and road connections.
+  6.  **Amenities**: Information about local parks, shops, restaurants, and other facilities.
+
+  Provide citations for all data sources used.
 
   Postcode: {{{postcode}}}
   `,
