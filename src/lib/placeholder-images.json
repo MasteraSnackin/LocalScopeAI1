@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "property-insights",
+      "description": "Modern residential houses",
+      "imageUrl": "https://picsum.photos/seed/property/600/400",
+      "imageHint": "modern house"
+    },
+    {
+      "id": "crime-safety",
+      "description": "A quiet, safe-looking suburban street at dusk",
+      "imageUrl": "https://picsum.photos/seed/safety/600/400",
+      "imageHint": "suburban street"
+    },
+    {
+      "id": "transport-links",
+      "description": "A modern train pulling into a station",
+      "imageUrl": "https://picsum.photos/seed/transport/600/400",
+      "imageHint": "modern train"
+    },
+    {
+      "id": "report-sample",
+      "description": "A person analyzing charts and graphs on a tablet",
+      "imageUrl": "https://picsum.photos/seed/report/600/400",
+      "imageHint": "data analysis"
+    }
+  ]
 }
