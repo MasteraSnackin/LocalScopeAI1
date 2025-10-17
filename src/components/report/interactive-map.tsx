@@ -28,13 +28,13 @@ export default function InteractiveMap({ postcode }: { postcode: string }) {
     getCoords();
   }, [postcode]);
 
-  if (!apiKey) {
+  if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
     return (
       <Alert variant="destructive">
         <MapPin className="h-4 w-4" />
         <AlertTitle>Google Maps API Key Missing</AlertTitle>
         <AlertDescription>
-          Please add your Google Maps API key to the .env.local file to enable the interactive map.
+          Please add your Google Maps API key to the .env.local file to enable the interactive map. You can get a key from the Google Cloud Console.
         </AlertDescription>
       </Alert>
     );
