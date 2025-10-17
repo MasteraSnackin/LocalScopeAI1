@@ -6,13 +6,17 @@ import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Building, Leaf } from "lucide-react";
+import { User, Building, Leaf, Store, Users, GraduationCap, Landmark } from "lucide-react";
 
 const personas = [
   { value: "default", label: "Default User", icon: <User className="mr-2 h-4 w-4" /> },
   { value: "first_time_buyer", label: "First-Time Buyer", icon: <User className="mr-2 h-4 w-4" /> },
+  { value: "family_with_children", label: "Family with Children", icon: <Users className="mr-2 h-4 w-4" /> },
+  { value: "renter_student", label: "Renter / Student", icon: <GraduationCap className="mr-2 h-4 w-4" /> },
   { value: "developer", label: "Real Estate Developer", icon: <Building className="mr-2 h-4 w-4" /> },
+  { value: "small_business_owner", label: "Small Business Owner", icon: <Store className="mr-2 h-4 w-4" /> },
   { value: "researcher", label: "Climate Researcher", icon: <Leaf className="mr-2 h-4 w-4" /> },
+  { value: "urban_planner", label: "Urban Planner", icon: <Landmark className="mr-2 h-4 w-4" /> },
 ];
 
 export default function HeroSearch() {

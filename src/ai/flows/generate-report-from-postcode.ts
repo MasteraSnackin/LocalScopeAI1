@@ -14,7 +14,16 @@ const GenerateReportFromPostcodeInputSchema = z.object({
   postcode: z
     .string()
     .describe('The UK postcode for which to generate the report.'),
-  persona: z.enum(['default', 'first_time_buyer', 'developer', 'researcher']).optional().default('default')
+  persona: z.enum([
+    'default', 
+    'first_time_buyer', 
+    'developer', 
+    'researcher',
+    'family_with_children',
+    'renter_student',
+    'small_business_owner',
+    'urban_planner'
+  ]).optional().default('default')
     .describe('The persona of the user requesting the report, which tailors the content.'),
 });
 export type GenerateReportFromPostcodeInput = z.infer<typeof GenerateReportFromPostcodeInputSchema>;
@@ -54,14 +63,14 @@ const prompt = ai.definePrompt({
 
   **Persona-Specific Sections:**
 
-  **1. If persona is 'default' or 'first_time_buyer':**
-  - **Housing**: Average prices for detached, semi-detached, terraced, and flats. 12-month price trends. Local rental market summary (average rent for 1-bed, 2-bed, 3-bed).
-  - **Local Schools**: List at least 5-10 nearby primary and secondary schools. Include name, type, and latest Ofsted rating (Outstanding, Good, etc.).
-  - **Crime & Safety**: Summary of local crime statistics and safety information.
+  **1. If persona is 'default', 'first_time_buyer', or 'family_with_children':**
+  - **Housing**: Average prices for detached, semi-detached, terraced, and flats. 12-month price trends. Local rental market summary (average rent for 1-bed, 2-bed, 3-bed). For 'family_with_children', highlight family-sized homes.
+  - **Local Schools & Childcare**: List at least 5-10 nearby primary and secondary schools. Include name, type, and latest Ofsted rating (Outstanding, Good, etc.). For 'family_with_children', also include information on nurseries and childcare options.
+  - **Crime & Safety**: Summary of local crime statistics and safety information, focusing on residential and community safety.
   - **Transport Links**: Overview of major train, bus, and road connections, including typical commute times to the nearest major city center.
-  - **Amenities**: Detailed information on local parks, specific types of shops (e.g., supermarkets, boutiques, etc.), restaurants, and leisure facilities.
-  - **Health & Wellbeing**: Details on nearby healthcare services including GPs, dentists, and major hospitals with their specialities.
-  - **Social & Community**: Information on local demographics, community centres, libraries, and notable community events or groups.
+  - **Amenities & Recreation**: Detailed information on local parks, playgrounds, specific types of shops (e.g., supermarkets, boutiques, etc.), restaurants, and family-friendly leisure facilities.
+  - **Health & Wellbeing**: Details on nearby healthcare services including GPs, dentists, paediatric services, and major hospitals with their specialities.
+  - **Social & Community**: Information on local demographics, community centres, libraries, family-oriented community events or groups, and population age distribution.
 
   **2. If persona is 'developer':**
   - **Planning & Development**: Recent planning applications and decisions, local development plans, and potential for new builds or redevelopments. Identify brownfield sites if possible.
@@ -73,10 +82,32 @@ const prompt = ai.definePrompt({
   **3. If persona is 'researcher' (focused on climate change):**
   - **Environmental Quality**: Data on local air quality (NO2, PM2.5 levels), water quality, and noise pollution.
   - **Flood Risk & Water Levels**: Detailed flood risk analysis (surface water, river, and coastal), historical flooding events, and information on local water levels and river catchments.
-  - **Green Spaces, Biodiversity, & Wildlife**: Percentage of land covered by green space. Information on local parks, nature reserves, biodiversity indexes, and notable local wildlife.
+  - **Green Spaces, Biodiversity, & Wildlife**: Percentage of land covered by green space. Information on local parks, nature reserves, biodiversity indexes, and notable local wildlife and protected species.
   - **Climate Projections**: Projected changes in temperature, rainfall, and extreme weather events for the area based on UK climate models.
   - **Local Authority Policies**: Summary of the local council's climate action plan, sustainability initiatives, and targets for carbon reduction.
 
+  **4. If persona is 'renter_student':**
+  - **Rental Market**: Detailed breakdown of average rent for different property types (studios, 1-bed, 2-bed, house shares). Typical tenancy lengths and deposit requirements.
+  - **Transport & Connectivity**: Excellent detail on public transport routes, especially to universities or major employment hubs. Night bus availability. Cycling infrastructure.
+  - **Local Life & Social Scene**: Information on cafes, pubs, restaurants, nightlife, live music venues, and affordable entertainment options.
+  - **Amenities**: Proximity to supermarkets, laundrettes, gyms, and libraries.
+  - **Demographics**: Age distribution of the local population, with a focus on the 18-35 age bracket.
+
+  **5. If persona is 'small_business_owner':**
+  - **Commercial Property**: Availability and average cost of retail/office space. Information on local business rates.
+  - **Local Economy & Demographics**: Dominant local industries, daytime population, median household income, and consumer spending habits.
+  - **Competition & Footfall**: Analysis of existing businesses in the area (by category). High-footfall areas and main commercial streets.
+  - **Infrastructure**: Broadband quality, local logistics and delivery services, and parking availability.
+  - **Local Regulations**: Information on local business licensing and any relevant council regulations or support schemes.
+  
+  **6. If persona is 'urban_planner':**
+  - **Zoning & Land Use**: Detailed breakdown of current land use designations (residential, commercial, industrial, green belt).
+  - **Socio-Economic Data**: In-depth demographic data including age, income, education levels, and employment sectors.
+  - **Infrastructure Capacity**: Assessment of current capacity and future needs for transport, utilities (water, energy), schools, and healthcare facilities.
+  - **Development Pipeline**: Comprehensive list of approved and proposed development projects in the area.
+  - **Environmental Constraints**: Detailed data on flood risk, conservation areas, protected sites, and air quality management areas.
+  - **Public Policy**: Summary of the Local Plan, housing targets, economic development strategy, and climate action policies.
+  
   ---
   Postcode: {{{postcode}}}
   Persona: {{{persona}}}
