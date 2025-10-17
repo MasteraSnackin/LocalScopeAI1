@@ -5,12 +5,12 @@ import {
     TooltipProvider,
     TooltipTrigger,
   } from "@/components/ui/tooltip";
-import { BarChart, BarChart2, Home, Landmark, Map, School, Shield, Train } from "lucide-react";
+import { BarChart, BarChart2, FileText, Home, Landmark, Map, School, Shield, Train } from "lucide-react";
 import Link from "next/link";
 
 const navItems = [
-    { href: "#summary", icon: Home, label: "Summary" },
-    { href: "#housing", icon: BarChart, label: "Housing" },
+    { href: "#summary", icon: FileText, label: "Summary" },
+    { href: "#housing", icon: Home, label: "Housing" },
     { href: "#crime", icon: Shield, label: "Crime" },
     { href: "#schools", icon: School, label: "Schools" },
     { href: "#transport", icon: Train, label: "Transport" },
@@ -19,6 +19,15 @@ const navItems = [
 
 
 export default function ReportSidebarNav({ isMobile = false }: { isMobile?: boolean}) {
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (isMobile) return;
+        e.preventDefault();
+        const targetElement = document.querySelector(href);
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+    
     if (isMobile) {
         return (
             <>
@@ -43,6 +52,7 @@ export default function ReportSidebarNav({ isMobile = false }: { isMobile?: bool
                     <TooltipTrigger asChild>
                     <Link
                         href={item.href}
+                        onClick={(e) => handleClick(e, item.href)}
                         className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                     >
                         <item.icon className="h-5 w-5" />

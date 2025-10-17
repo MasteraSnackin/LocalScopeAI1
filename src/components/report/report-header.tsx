@@ -7,12 +7,10 @@ import { useParams, useRouter } from "next/navigation";
 import { Logo } from "../icons/logo";
 import Link from "next/link";
 import ReportSidebarNav from "./report-sidebar-nav";
-import { useSidebar } from "../ui/sidebar";
 
 export default function ReportHeader() {
   const params = useParams();
   const router = useRouter();
-  const { toggleSidebar } = useSidebar();
   const postcode = params.postcode ? decodeURIComponent(params.postcode as string) : "";
 
   // The PDF export functionality will be triggered from the ReportView component,

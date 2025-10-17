@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, Home as HomeIcon, Search, Shield, Train } from "lucide-react";
 import Image from 'next/image';

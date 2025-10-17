@@ -1,82 +1,85 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { ReportData } from './types';
-import { Logo } from '@/components/icons/logo';
 
-// This is a simplified version. A real implementation would need more robust styling and element handling.
-export const exportToPdf = async (reportData: ReportData, postcode: string) => {
+export const exportToPdf = async (element: HTMLElement, postcode: string) => {
   const pdf = new jsPDF('p', 'pt', 'a4');
   const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfMargin = 20;
+  const pdfMargin = 40;
+  const contentWidth = pdfWidth - pdfMargin * 2;
 
-  // Create a hidden element to render for PDF generation
-  const reportElement = document.createElement('div');
-  reportElement.style.position = 'absolute';
-  reportElement.style.left = '-9999px';
-  reportElement.style.width = `${pdfWidth - pdfMargin * 2}px`;
-  reportElement.style.fontFamily = 'Helvetica, Arial, sans-serif';
-  reportElement.style.color = '#000';
+  // Temporarily clone the element to modify styles for PDF rendering
+  const clone = element.cloneNode(true) as HTMLElement;
+  clone.style.width = `${contentWidth}px`;
+  clone.style.padding = '0';
+  clone.style.margin = '0';
+  clone.style.position = 'absolute';
+  clone.style.left = '-9999px';
+  clone.style.top = '0px';
 
-  let contentHTML = `
-    <div style="text-align: center; margin-bottom: 40px;">
-      <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">LocalScope AI Report</h1>
-      <h2 style="font-size: 18px; font-weight: normal; color: #555;">${postcode}</h2>
-      <p style="font-size: 10px; color: #888;">Generated on: ${new Date().toLocaleDateString()}</p>
-    </div>
-    
-    <div style="margin-bottom: 30px;">
-      <h3 style="font-size: 16px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">Executive Summary</h3>
-      <p style="font-size: 12px; line-height: 1.6;">${reportData.executiveSummary.replace(/\n/g, '<br/>')}</p>
-    </div>
-  `;
+  document.body.appendChild(clone);
 
-  reportData.reportSections.forEach(section => {
-    contentHTML += `
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="font-size: 16px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">${section.title}</h3>
-        <p style="font-size: 12px; line-height: 1.6;">${section.content.replace(/\n/g, '<br/>')}</p>
-      </div>
-    `;
-  });
-
-  if (reportData.citations && reportData.citations.length > 0) {
-    contentHTML += `
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="font-size: 16px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">Citations</h3>
-        <ul style="font-size: 10px; line-height: 1.6; padding-left: 20px;">
-          ${reportData.citations.map(c => `<li>${c}</li>`).join('')}
-        </ul>
-      </div>
-    `;
-  }
+  // Add a header to the PDF
+  const addHeader = (pdf: jsPDF) => {
+    pdf.setFontSize(20);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('LocalScope AI Report', pdfWidth / 2, pdfMargin, { align: 'center' });
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(postcode, pdfWidth / 2, pdfMargin + 25, { align: 'center' });
+    pdf.setFontSize(8);
+    pdf.setTextColor(150);
+    pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, pdfWidth / 2, pdfMargin + 40, { align: 'center' });
+  };
   
-  reportElement.innerHTML = contentHTML;
-  document.body.appendChild(reportElement);
+  // Add a footer to each page
+  const addFooter = (pdf: jsPDF) => {
+    const pageCount = pdf.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(8);
+        pdf.setTextColor(150);
+        pdf.text(
+            `Page ${i} of ${pageCount}`,
+            pdfWidth - pdfMargin,
+            pdf.internal.pageSize.getHeight() - 15,
+            { align: 'right' }
+        );
+    }
+  };
 
-  const canvas = await html2canvas(reportElement, {
+
+  const canvas = await html2canvas(clone, {
     scale: 2,
     useCORS: true,
+    logging: false,
+    windowWidth: clone.scrollWidth,
+    windowHeight: clone.scrollHeight,
   });
 
-  document.body.removeChild(reportElement);
-  
+  document.body.removeChild(clone);
+
   const imgData = canvas.toDataURL('image/png');
   const imgProps = pdf.getImageProperties(imgData);
-  const imgHeight = (imgProps.height * (pdfWidth - pdfMargin * 2)) / imgProps.width;
+  const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
+  const pageHeight = pdf.internal.pageSize.getHeight() - (pdfMargin * 2);
 
   let heightLeft = imgHeight;
-  let position = 0;
-  const pageHeight = pdf.internal.pageSize.getHeight();
+  let position = pdfMargin + 50; // Start content after header
 
-  pdf.addImage(imgData, 'PNG', pdfMargin, pdfMargin, pdfWidth - pdfMargin * 2, imgHeight);
-  heightLeft -= pageHeight;
+  addHeader(pdf);
 
-  while (heightLeft >= 0) {
-    position = heightLeft - imgHeight;
+  pdf.addImage(imgData, 'PNG', pdfMargin, position, contentWidth, imgHeight);
+  heightLeft -= (pageHeight - 50);
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight + pdfMargin;
     pdf.addPage();
-    pdf.addImage(imgData, 'PNG', pdfMargin, position - pdfMargin, pdfWidth - pdfMargin * 2, imgHeight);
+    addHeader(pdf);
+    pdf.addImage(imgData, 'PNG', pdfMargin, position, contentWidth, imgHeight);
     heightLeft -= pageHeight;
   }
+  
+  addFooter(pdf);
   
   pdf.save(`LocalScope-AI-Report-${postcode}.pdf`);
 };

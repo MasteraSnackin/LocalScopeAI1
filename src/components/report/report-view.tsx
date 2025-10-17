@@ -32,14 +32,16 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
   const { toast } = useToast();
 
   const handleExport = useCallback(async () => {
-    if (report) {
+    const reportElement = document.getElementById('report-content');
+    if (report && reportElement) {
       toast({
         title: "Generating PDF...",
         description: "Your report is being prepared for download.",
       });
       try {
-        await exportToPdf(report, postcode);
+        await exportToPdf(reportElement, postcode);
       } catch (err) {
+        console.error("PDF Export Error: ", err);
         toast({
           variant: "destructive",
           title: "PDF Export Failed",
@@ -50,7 +52,7 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
       toast({
         variant: "destructive",
         title: "Cannot Export PDF",
-        description: "The report data is not available.",
+        description: "The report data is not available or the report content could not be found.",
       });
     }
   }, [report, postcode, toast]);
@@ -101,50 +103,51 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
   const allSectionTitles = report.reportSections.map(s => s.title);
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-      <div id="summary">
-        <ExecutiveSummary summary={report.executiveSummary} />
+    <>
+      <div id="report-content" className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        <div id="summary">
+          <ExecutiveSummary summary={report.executiveSummary} />
+        </div>
+
+        <Tabs defaultValue={allSectionTitles[0] || 'section-0'}>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+              {allSectionTitles.map((title, index) => (
+                  <TabsTrigger key={index} value={title}>{title}</TabsTrigger>
+              ))}
+              <TabsTrigger value="map">Map</TabsTrigger>
+          </TabsList>
+
+          {report.reportSections.map((section, index) => (
+              <TabsContent key={index} value={section.title} className="mt-4" id={section.title.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}>
+                  <Card>
+                      <CardHeader>
+                          <CardTitle>{section.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                          <ReportSection section={section} />
+                          {section.title.toLowerCase().includes("housing") && <HousePriceChart />}
+                          {section.title.toLowerCase().includes("crime") && <CrimeChart />}
+                          {section.title.toLowerCase().includes("school") && <SchoolsChart />}
+                      </CardContent>
+                  </Card>
+              </TabsContent>
+          ))}
+
+          <TabsContent value="map" id="map" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Interactive Map</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <InteractiveMap postcode={postcode} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        <Citations citations={report.citations} />
       </div>
-
-      <Tabs defaultValue={allSectionTitles[0] || 'section-0'}>
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
-            {allSectionTitles.map((title, index) => (
-                <TabsTrigger key={index} value={title}>{title}</TabsTrigger>
-            ))}
-             <TabsTrigger value="map">Map</TabsTrigger>
-        </TabsList>
-
-        {report.reportSections.map((section, index) => (
-            <TabsContent key={index} value={section.title} className="mt-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{section.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <ReportSection section={section} />
-                        {section.title.toLowerCase().includes("housing") && <HousePriceChart />}
-                        {section.title.toLowerCase().includes("crime") && <CrimeChart />}
-                        {section.title.toLowerCase().includes("school") && <SchoolsChart />}
-                    </CardContent>
-                </Card>
-            </TabsContent>
-        ))}
-
-        <TabsContent value="map" id="map" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Interactive Map</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <InteractiveMap postcode={postcode} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <Citations citations={report.citations} />
-
       <ChatRoot postcode={postcode} reportSummary={report.executiveSummary} />
-    </div>
+    </>
   );
 }
