@@ -24,7 +24,6 @@ export type ChatWithAiAboutLocationInput = z.infer<typeof ChatWithAiAboutLocatio
 const ChatWithAiAboutLocationOutputSchema = z.object({
   answer: z.string().describe('The AI generated answer to the question.'),
   citations: z.array(z.string()).describe('Citations for the answer.'),
-  suggestedQuestions: z.array(z.string()).describe('Suggested questions to ask next.'),
 });
 export type ChatWithAiAboutLocationOutput = z.infer<typeof ChatWithAiAboutLocationOutputSchema>;
 
@@ -51,7 +50,7 @@ Question: {{question}}
 
 Answer in a comprehensive manner, and if possible, cite the sources from the "Citations" section of the report data.
 
-Output should include the "answer", "citations", and "suggestedQuestions" fields as described in the output schema. The suggested questions should be short and related to the previous turn in the conversation.
+Output should include the "answer" and "citations" fields as described in the output schema.
 `,
   templateHelpers: {
     ifEquals: function (arg1: any, arg2: any, options: any) {

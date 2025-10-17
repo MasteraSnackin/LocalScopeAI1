@@ -53,18 +53,18 @@ export async function askAi(
       .filter(m => m.role === 'user' || m.role === 'assistant')
       .map(({ role, content }) => ({ role, content }));
 
-    const [aiResponse, suggestedQuestionsResponse] = await Promise.all([
-      chatWithAiAboutLocation({
-        postcode,
-        question,
-        reportData: reportSummary,
-        chatHistory: historyForAi,
-      }),
-      generateSuggestedQuestions({
-        reportSummary,
-        userHistory: JSON.stringify(historyForAi),
-      }),
-    ]);
+    const aiResponse = await chatWithAiAboutLocation({
+      postcode,
+      question,
+      reportData: reportSummary,
+      chatHistory: historyForAi,
+    });
+    
+    // We get new suggested questions based on the last turn of conversation
+    const suggestedQuestionsResponse = await generateSuggestedQuestions({
+      reportSummary,
+      userHistory: JSON.stringify([...historyForAi, { role: 'user', content: question }, { role: 'assistant', content: aiResponse.answer }]),
+    });
 
     return {
       success: true,
@@ -75,6 +75,18 @@ export async function askAi(
   } catch (error) {
     console.error('Error in AI chat:', error);
     return { success: false, error: "Sorry, I couldn't process that. Please try again." };
+  }
+}
+
+export async function getSuggestedQuestions(
+  reportSummary: string
+): Promise<{ success: true; questions: string[] } | { success: false; error: string }> {
+  try {
+    const result = await generateSuggestedQuestions({ reportSummary });
+    return { success: true, questions: result.suggestedQuestions };
+  } catch (error) {
+    console.error('Error getting suggested questions:', error);
+    return { success: false, error: 'Could not generate suggested questions.' };
   }
 }
 

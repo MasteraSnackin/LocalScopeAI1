@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getReport } from "@/lib/actions";
+import { getReport, getSuggestedQuestions } from "@/lib/actions";
 import type { ReportData, ReportSection as ReportSectionType } from "@/lib/types";
 import type { GenerateReportFromPostcodeInput } from "@/ai/flows/generate-report-from-postcode";
 import { AlertTriangle, BarChart, Home, School, Shield, Train } from "lucide-react";
@@ -43,6 +43,7 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialQuestions, setInitialQuestions] = useState<string[]>([]);
   const { toast } = useToast();
 
   const handleExport = useCallback(async () => {
@@ -85,6 +86,10 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
       const result = await getReport(postcode, persona);
       if (result.success) {
         setReport(result.data);
+        const questionsResult = await getSuggestedQuestions(result.data.executiveSummary);
+        if (questionsResult.success) {
+          setInitialQuestions(questionsResult.questions);
+        }
       } else {
         setError(result.error);
       }
@@ -178,7 +183,11 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
 
         <Citations citations={report.citations} />
       </div>
-      <ChatRoot postcode={postcode} reportSummary={report.executiveSummary} />
+      <ChatRoot 
+        postcode={postcode} 
+        reportSummary={report.executiveSummary} 
+        initialQuestions={initialQuestions}
+      />
     </>
   );
 }

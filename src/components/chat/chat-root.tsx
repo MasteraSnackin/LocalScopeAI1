@@ -3,14 +3,14 @@
 import { useState } from "react";
 import ChatBubble from "./chat-bubble";
 import ChatPanel from "./chat-panel";
-import { ReportData } from "@/lib/types";
 
 interface ChatRootProps {
   postcode: string;
   reportSummary: string;
+  initialQuestions: string[];
 }
 
-export default function ChatRoot({ postcode, reportSummary }: ChatRootProps) {
+export default function ChatRoot({ postcode, reportSummary, initialQuestions }: ChatRootProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -21,6 +21,7 @@ export default function ChatRoot({ postcode, reportSummary }: ChatRootProps) {
         onClose={() => setIsOpen(false)}
         postcode={postcode}
         reportSummary={reportSummary}
+        initialQuestions={initialQuestions}
       />
     </>
   );

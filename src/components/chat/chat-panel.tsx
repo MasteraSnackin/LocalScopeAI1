@@ -20,6 +20,7 @@ interface ChatPanelProps {
   onClose: () => void;
   postcode: string;
   reportSummary: string;
+  initialQuestions?: string[];
 }
 
 const initialMessages: ChatMessage[] = [
@@ -29,22 +30,19 @@ const initialMessages: ChatMessage[] = [
   },
 ];
 
-const initialSuggestedQuestions = [
-  "What's the average house price?",
-  "How are the local schools rated?",
-  "Is this a safe area?",
-  "Summarize the transport links.",
-];
-
-export default function ChatPanel({ isOpen, onClose, postcode, reportSummary }: ChatPanelProps) {
+export default function ChatPanel({ isOpen, onClose, postcode, reportSummary, initialQuestions = [] }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [suggestedQuestions, setSuggestedQuestions] = useState(initialSuggestedQuestions);
+  const [suggestedQuestions, setSuggestedQuestions] = useState(initialQuestions);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setSuggestedQuestions(initialQuestions);
+  }, [initialQuestions]);
 
   const handleSendMessage = useCallback(async (question: string) => {
     if (!question.trim()) return;
