@@ -5,6 +5,7 @@ import { generateReportFromPostcode, GenerateReportFromPostcodeInput } from '@/a
 import { generateSuggestedQuestions } from '@/ai/flows/suggested-questions';
 import { geocodePostcode as geocodePostcodeFlow } from '@/ai/flows/geocode-postcode';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
+import { textToSpeech } from '@/ai/flows/text-to-speech';
 import type { ChatMessage, ReportData } from './types';
 
 export async function getReport(
@@ -102,4 +103,19 @@ export async function getCoordinates(
     console.error('Error getting coordinates:', error);
     return { success: false, error: 'Could not find coordinates for the given postcode.' };
   }
+}
+
+export async function getTextToSpeech(
+    text: string
+): Promise<{ success: true; audioDataUri: string } | { success: false; error: string }> {
+    try {
+        const result = await textToSpeech({ text });
+        if (result.audioDataUri) {
+            return { success: true, audioDataUri: result.audioDataUri };
+        }
+        return { success: false, error: 'Failed to synthesize audio.' };
+    } catch (error) {
+        console.error('Error in text-to-speech:', error);
+        return { success: false, error: 'An error occurred during audio synthesis.' };
+    }
 }

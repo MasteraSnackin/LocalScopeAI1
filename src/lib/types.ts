@@ -14,4 +14,5 @@ export type ChatMessage = {
   content: string;
   citations?: string[];
   isTyping?: boolean;
+  audioDataUri?: string;
 };
