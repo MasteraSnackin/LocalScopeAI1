@@ -59,7 +59,7 @@ const prompt = ai.definePrompt({
   - **Local Schools**: List at least 5-10 nearby primary and secondary schools. Include name, type, and latest Ofsted rating (Outstanding, Good, etc.).
   - **Crime & Safety**: Summary of local crime statistics and safety information.
   - **Transport Links**: Overview of major train, bus, and road connections, including typical commute times to the nearest major city center.
-  - **Amenities**: Information on local parks, shops, restaurants, and leisure facilities.
+  - **Amenities**: Detailed information on local parks, specific types of shops (e.g., supermarkets, boutiques, etc.), restaurants, and leisure facilities.
   - **Health & Wellbeing**: Details on nearby healthcare services including GPs, dentists, and major hospitals with their specialities.
   - **Social & Community**: Information on local demographics, community centres, libraries, and notable community events or groups.
 
@@ -67,13 +67,13 @@ const prompt = ai.definePrompt({
   - **Planning & Development**: Recent planning applications and decisions, local development plans, and potential for new builds or redevelopments. Identify brownfield sites if possible.
   - **Land Value & Yield**: Average land value estimates (per acre/hectare if available). Typical rental yields and ROI for different property types.
   - **Demographics & Growth**: Population growth projections, median household income, and employment statistics for the area.
-  - **Infrastructure**: Current and planned infrastructure projects (e.g., new roads, public transport upgrades, broadband improvements).
+  - **Infrastructure & Amenities**: Current and planned infrastructure projects (e.g., new roads, public transport upgrades, broadband improvements). Overview of existing local amenities like shops, parks, and restaurants that would be attractive to potential residents.
   - **Market Analysis**: Competitor analysis of other developers in the area. Analysis of housing supply vs. demand.
 
   **3. If persona is 'researcher' (focused on climate change):**
   - **Environmental Quality**: Data on local air quality (NO2, PM2.5 levels), water quality, and noise pollution.
   - **Flood Risk & Water Levels**: Detailed flood risk analysis (surface water, river, and coastal), historical flooding events, and information on local water levels and river catchments.
-- **Green Spaces, Biodiversity, & Wildlife**: Percentage of land covered by green space. Information on local parks, nature reserves, biodiversity indexes, and notable local wildlife.
+  - **Green Spaces, Biodiversity, & Wildlife**: Percentage of land covered by green space. Information on local parks, nature reserves, biodiversity indexes, and notable local wildlife.
   - **Climate Projections**: Projected changes in temperature, rainfall, and extreme weather events for the area based on UK climate models.
   - **Local Authority Policies**: Summary of the local council's climate action plan, sustainability initiatives, and targets for carbon reduction.
 
