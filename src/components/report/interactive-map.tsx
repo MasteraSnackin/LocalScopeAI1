@@ -1,31 +1,30 @@
-"use client";
+'use client';
 
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { MapPin } from 'lucide-react';
-
-// In a real app, this would come from an API call based on the postcode
-const geocodePostcode = async (postcode: string): Promise<{ lat: number, lng: number } | null> => {
-    // This is a mock. A real implementation would use Google's Geocoding API.
-    // The lat/lng are approximate for central London.
-    if(postcode.startsWith('SW1A')) {
-        return { lat: 51.503364, lng: -0.127625 };
-    }
-    // A default fallback
-    return { lat: 51.5074, lng: -0.1278 };
-};
-
+import { getCoordinates } from '@/lib/actions';
+import { Skeleton } from '../ui/skeleton';
 
 export default function InteractiveMap({ postcode }: { postcode: string }) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getCoords = async () => {
-        const coords = await geocodePostcode(postcode);
-        setCenter(coords);
-    }
+      setLoading(true);
+      setError(null);
+      const result = await getCoordinates(postcode);
+      if (result.success) {
+        setCenter(result.data);
+      } else {
+        setError(result.error);
+      }
+      setLoading(false);
+    };
     getCoords();
   }, [postcode]);
 
@@ -41,21 +40,37 @@ export default function InteractiveMap({ postcode }: { postcode: string }) {
     );
   }
 
+  if (loading) {
+    return <Skeleton className="h-[400px] w-full rounded-lg" />;
+  }
+  
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <MapPin className="h-4 w-4" />
+        <AlertTitle>Could not load map</AlertTitle>
+        <AlertDescription>
+          {error}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   if (!center) {
-    return <div className="h-[400px] w-full bg-muted animate-pulse rounded-lg" />;
+    return null;
   }
 
   return (
     <div className="h-[400px] w-full overflow-hidden rounded-lg border">
       <APIProvider apiKey={apiKey}>
         <Map
-          defaultCenter={center}
+          center={center}
           defaultZoom={14}
           mapId="localscope_map"
           gestureHandling={'greedy'}
           disableDefaultUI={true}
         >
-            <Marker position={center} />
+          <Marker position={center} />
         </Map>
       </APIProvider>
     </div>
