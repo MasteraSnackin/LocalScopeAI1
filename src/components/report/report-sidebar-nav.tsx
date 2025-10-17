@@ -11,9 +11,9 @@ import Link from "next/link";
 const navItems = [
     { href: "#summary", icon: FileText, label: "Summary" },
     { href: "#housing", icon: Home, label: "Housing" },
-    { href: "#crime", icon: Shield, label: "Crime" },
-    { href: "#schools", icon: School, label: "Schools" },
-    { href: "#transport", icon: Train, label: "Transport" },
+    { href: "#crime-&-safety", icon: Shield, label: "Crime" },
+    { href: "#local-schools-&-childcare", icon: School, label: "Schools" },
+    { href: "#transport-links", icon: Train, label: "Transport" },
     { href: "#map", icon: Map, label: "Interactive Map" },
 ];
 
