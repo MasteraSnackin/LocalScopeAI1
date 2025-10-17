@@ -5,12 +5,13 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import ChatMessages from "./chat-messages";
 import type { ChatMessage } from "@/lib/types";
 import { askAi } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import SuggestedQuestions from "./suggested-questions";
+import AudioRecorder from "./audio-recorder";
 
 interface ChatPanelProps {
   isOpen: boolean;
@@ -40,36 +41,43 @@ export default function ChatPanel({ isOpen, onClose, postcode, reportSummary }: 
   const [suggestedQuestions, setSuggestedQuestions] = useState(initialSuggestedQuestions);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const handleSendMessage = async (question: string) => {
+  const handleSendMessage = useCallback(async (question: string) => {
     if (!question.trim()) return;
 
     const newMessages: ChatMessage[] = [...messages, { role: "user", content: question }];
     setMessages(newMessages);
     setIsTyping(true);
+    setInput("");
 
     const aiResponse = await askAi(postcode, reportSummary, newMessages, question);
     
     if (aiResponse.success) {
-      setMessages([
-        ...newMessages,
+      setMessages(currentMessages => [
+        ...currentMessages,
         { role: "assistant", content: aiResponse.answer, citations: aiResponse.citations },
       ]);
       if(aiResponse.suggestedQuestions.length > 0) {
         setSuggestedQuestions(aiResponse.suggestedQuestions);
       }
     } else {
-      setMessages([
-        ...newMessages,
+      setMessages(currentMessages => [
+        ...currentMessages,
         { role: "system", content: "Sorry, I encountered an error. Please try again." },
       ]);
     }
     setIsTyping(false);
-  };
+  }, [messages, postcode, reportSummary]);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleSendMessage(input);
     setInput("");
+  };
+
+  const handleTranscription = (transcribedText: string) => {
+    if (transcribedText) {
+      handleSendMessage(transcribedText);
+    }
   };
 
   useEffect(() => {
@@ -111,7 +119,6 @@ export default function ChatPanel({ isOpen, onClose, postcode, reportSummary }: 
           <SuggestedQuestions 
             questions={suggestedQuestions} 
             onQuestionClick={(q) => {
-                setInput(q);
                 handleSendMessage(q);
             }} 
             disabled={isTyping}
@@ -120,9 +127,10 @@ export default function ChatPanel({ isOpen, onClose, postcode, reportSummary }: 
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Type or record your message..."
               disabled={isTyping}
             />
+            <AudioRecorder onTranscription={handleTranscription} disabled={isTyping} />
             <Button type="submit" size="icon" disabled={isTyping || !input.trim()}>
               <Send className="h-4 w-4" />
               <span className="sr-only">Send</span>

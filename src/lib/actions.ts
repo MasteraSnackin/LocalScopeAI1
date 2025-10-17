@@ -3,6 +3,7 @@
 import { chatWithAiAboutLocation } from "@/ai/flows/chat-with-ai-about-location";
 import { generateReportFromPostcode } from "@/ai/flows/generate-report-from-postcode";
 import { generateSuggestedQuestions } from "@/ai/flows/suggested-questions";
+import { transcribeAudio } from "@/ai/flows/transcribe-audio";
 import type { ChatMessage, ReportData } from "./types";
 
 export async function getReport(postcode: string): Promise<{ success: true; data: ReportData } | { success: false; error: string }> {
@@ -61,4 +62,17 @@ export async function askAi(
     console.error("Error in AI chat:", error);
     return { success: false, error: "Sorry, I couldn't process that. Please try again." };
   }
+}
+
+export async function getTranscription(audioDataUri: string): Promise<{ success: true; text: string } | { success: false; error: string }> {
+    try {
+        const result = await transcribeAudio({ audioDataUri });
+        if (result.text) {
+            return { success: true, text: result.text };
+        }
+        return { success: false, error: "Failed to get transcription." };
+    } catch (error) {
+        console.error("Error getting transcription:", error);
+        return { success: false, error: "An error occurred while transcribing audio." };
+    }
 }
