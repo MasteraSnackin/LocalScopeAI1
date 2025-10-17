@@ -36,7 +36,7 @@ const GenerateReportFromPostcodeOutputSchema = z.object({
       content: z.string().describe('The content of the report section.'),
     })
   ).describe('The different sections of the generated report.'),
-  citations: z.array(z.string()).describe('Citations for the information in the report.'),
+  citations: z.array(z.string()).describe('Citations for the information in the report. Each citation must include the source and the date of the data (e.g., "Source Name - Data from Oct 2023").'),
 });
 export type GenerateReportFromPostcodeOutput = z.infer<typeof GenerateReportFromPostcodeOutputSchema>;
 
@@ -57,7 +57,7 @@ const prompt = ai.definePrompt({
   **Report Structure Requirements:**
   - Start with a concise **Executive Summary** that gives the key takeaways for the specified persona.
   - Include detailed sections as outlined below.
-  - Provide citations for all data sources used.
+  - Provide citations for all data sources used. Each citation MUST include the source name and the date of the data (e.g., "Source Name - Data from Oct 2023").
 
   ---
 
