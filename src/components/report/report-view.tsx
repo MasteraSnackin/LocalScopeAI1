@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getReport } from "@/lib/actions";
 import type { ReportData } from "@/lib/types";
+import type { GenerateReportFromPostcodeInput } from "@/ai/flows/generate-report-from-postcode";
 import { AlertTriangle } from "lucide-react";
 import ExecutiveSummary from "./executive-summary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +20,12 @@ import ChatRoot from "../chat/chat-root";
 import { useToast } from "@/hooks/use-toast";
 import { exportToPdf } from "@/lib/pdf-export";
 
-export default function ReportView({ postcode }: { postcode: string }) {
+interface ReportViewProps {
+    postcode: string;
+    persona: GenerateReportFromPostcodeInput['persona'];
+}
+
+export default function ReportView({ postcode, persona }: ReportViewProps) {
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +66,7 @@ export default function ReportView({ postcode }: { postcode: string }) {
     const fetchReport = async () => {
       setLoading(true);
       setError(null);
-      const result = await getReport(postcode);
+      const result = await getReport(postcode, persona);
       if (result.success) {
         setReport(result.data);
       } else {
@@ -70,7 +76,7 @@ export default function ReportView({ postcode }: { postcode: string }) {
     };
 
     fetchReport();
-  }, [postcode]);
+  }, [postcode, persona]);
 
   if (loading) {
     return <Loading />;
@@ -92,72 +98,37 @@ export default function ReportView({ postcode }: { postcode: string }) {
     return null;
   }
   
-  const housingSection = report.reportSections.find(s => s.title.toLowerCase().includes('house') || s.title.toLowerCase().includes('property'));
-  const crimeSection = report.reportSections.find(s => s.title.toLowerCase().includes('crime'));
-  const schoolsSection = report.reportSections.find(s => s.title.toLowerCase().includes('school'));
-  const transportSection = report.reportSections.find(s => s.title.toLowerCase().includes('transport'));
-  
+  const allSectionTitles = report.reportSections.map(s => s.title);
+
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       <div id="summary">
         <ExecutiveSummary summary={report.executiveSummary} />
       </div>
 
-      <Tabs defaultValue="housing">
+      <Tabs defaultValue={allSectionTitles[0] || 'section-0'}>
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
-          <TabsTrigger value="housing">Housing</TabsTrigger>
-          <TabsTrigger value="crime">Crime</TabsTrigger>
-          <TabsTrigger value="schools">Schools</TabsTrigger>
-          <TabsTrigger value="transport">Transport</TabsTrigger>
-          <TabsTrigger value="map">Map</TabsTrigger>
+            {allSectionTitles.map((title, index) => (
+                <TabsTrigger key={index} value={title}>{title}</TabsTrigger>
+            ))}
+             <TabsTrigger value="map">Map</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="housing" id="housing" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Housing Market</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {housingSection && <ReportSection section={housingSection} />}
-              <HousePriceChart />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="crime" id="crime" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Crime & Safety</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {crimeSection && <ReportSection section={crimeSection} />}
-              <CrimeChart />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="schools" id="schools" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Education & Schools</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {schoolsSection && <ReportSection section={schoolsSection} />}
-              <SchoolsChart />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="transport" id="transport" className="mt-4">
-           <Card>
-            <CardHeader>
-              <CardTitle>Transport Links</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {transportSection && <ReportSection section={transportSection} />}
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {report.reportSections.map((section, index) => (
+            <TabsContent key={index} value={section.title} className="mt-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{section.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <ReportSection section={section} />
+                        {section.title.toLowerCase().includes("housing") && <HousePriceChart />}
+                        {section.title.toLowerCase().includes("crime") && <CrimeChart />}
+                        {section.title.toLowerCase().includes("school") && <SchoolsChart />}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+        ))}
 
         <TabsContent value="map" id="map" className="mt-4">
           <Card>

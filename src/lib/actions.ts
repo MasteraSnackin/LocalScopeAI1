@@ -1,14 +1,15 @@
 'use server';
 
 import { chatWithAiAboutLocation } from '@/ai/flows/chat-with-ai-about-location';
-import { generateReportFromPostcode } from '@/ai/flows/generate-report-from-postcode';
+import { generateReportFromPostcode, GenerateReportFromPostcodeInput } from '@/ai/flows/generate-report-from-postcode';
 import { generateSuggestedQuestions } from '@/ai/flows/suggested-questions';
 import { geocodePostcode as geocodePostcodeFlow } from '@/ai/flows/geocode-postcode';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import type { ChatMessage, ReportData } from './types';
 
 export async function getReport(
-  postcode: string
+  postcode: string,
+  persona?: GenerateReportFromPostcodeInput['persona']
 ): Promise<{ success: true; data: ReportData } | { success: false; error: string }> {
   try {
     if (!postcode) {
@@ -20,7 +21,7 @@ export async function getReport(
       // return { success: false, error: "Invalid UK postcode format. Please use format like 'SW1A 0AA'." };
     }
 
-    const report = await generateReportFromPostcode({ postcode });
+    const report = await generateReportFromPostcode({ postcode, persona });
     if (!report || !report.executiveSummary) {
       throw new Error('Failed to generate a valid report from AI.');
     }
