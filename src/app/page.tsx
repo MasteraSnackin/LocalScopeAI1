@@ -1,5 +1,6 @@
+
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Home, Search, Shield, Train } from "lucide-react";
+import { CheckCircle2, Home as HomeIcon, Search, Shield, Train } from "lucide-react";
 import Image from 'next/image';
 import HeroSearch from "@/components/landing/hero-search";
 import { AnimatedSection } from "@/components/landing/animated-section";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 
 const features = [
   {
-    icon: <Home className="h-8 w-8 text-primary" />,
+    icon: <HomeIcon className="h-8 w-8 text-primary" />,
     title: "Property Insights",
     description: "In-depth analysis of local house prices, market trends, and rental yields.",
     image: PlaceHolderImages[0]
@@ -39,7 +40,7 @@ const reportTypes = [
   "Broadband Speed",
 ];
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="absolute top-0 left-0 right-0 z-10 py-4 px-4 sm:px-6 lg:px-8">
