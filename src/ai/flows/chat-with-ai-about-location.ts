@@ -49,9 +49,9 @@ else}}Assistant: {{content}}{{/ifEquals}}
 
 Question: {{question}}
 
-Answer in a comprehensive manner, and if possible, cite the sources from the \"Citations\" section of the report data.
+Answer in a comprehensive manner, and if possible, cite the sources from the "Citations" section of the report data.
 
-Output should include the \"answer\", \"citations\", and \"suggestedQuestions\" fields as described in the output schema. The suggested questions should be short and related to the previous turn in the conversation.
+Output should include the "answer", "citations", and "suggestedQuestions" fields as described in the output schema. The suggested questions should be short and related to the previous turn in the conversation.
 `,
   templateHelpers: {
     ifEquals: function (arg1: any, arg2: any, options: any) {
