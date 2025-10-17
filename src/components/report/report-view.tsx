@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getReport, getSuggestedQuestions } from "@/lib/actions";
-import type { ReportData, ReportSection as ReportSectionType } from "@/lib/types";
+import type { ReportData } from "@/lib/types";
 import type { GenerateReportFromPostcodeInput } from "@/ai/flows/generate-report-from-postcode";
 import { AlertTriangle, BarChart, Home, School, Shield, Train } from "lucide-react";
 import ExecutiveSummary from "./executive-summary";
@@ -18,6 +18,7 @@ import Loading from "@/app/report/[postcode]/loading";
 import ChatRoot from "../chat/chat-root";
 import { useToast } from "@/hooks/use-toast";
 import { exportToPdf } from "@/lib/pdf-export";
+import KeyInsights from "./key-insights";
 
 interface ReportViewProps {
     postcode: string;
@@ -130,6 +131,12 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
         <SectionWrapper id="summary">
           <ExecutiveSummary summary={report.executiveSummary} />
         </SectionWrapper>
+
+        {report.keyInsights && report.keyInsights.length > 0 && (
+          <SectionWrapper id="key-insights">
+            <KeyInsights insights={report.keyInsights} persona={persona} />
+          </SectionWrapper>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">

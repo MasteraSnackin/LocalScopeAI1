@@ -30,6 +30,13 @@ export type GenerateReportFromPostcodeInput = z.infer<typeof GenerateReportFromP
 
 const GenerateReportFromPostcodeOutputSchema = z.object({
   executiveSummary: z.string().describe('A summary of the key local area information tailored to the persona.'),
+  keyInsights: z.array(
+    z.object({
+      insight: z.string().describe('A single, concise key insight as a bullet point.'),
+      type: z.enum(['positive', 'negative', 'neutral']).describe('The sentiment of the insight.'),
+      sectionId: z.string().describe('The ID of the report section this insight relates to (e.g., "housing", "crime-&-safety").')
+    })
+  ).describe('A list of 5-6 key, actionable insights for the user persona.'),
   reportSections: z.array(
     z.object({
       title: z.string().describe('The title of the report section.'),
@@ -56,6 +63,7 @@ const prompt = ai.definePrompt({
 
   **Report Structure Requirements:**
   - Start with a concise **Executive Summary** that gives the key takeaways for the specified persona.
+  - Generate a list of 5-6 **Key Insights**. Each insight must be a short, impactful statement. Classify each insight as 'positive', 'negative', or 'neutral'. Link each insight to a section of the report by providing a 'sectionId' (e.g., 'housing', 'crime-&-safety', 'local-schools-&-childcare').
   - Include detailed sections as outlined below.
   - Provide citations for all data sources used. Each citation MUST include the source name and the date of the data (e.g., "Source Name - Data from Oct 2023").
 

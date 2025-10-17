@@ -3,8 +3,15 @@ export type ReportSection = {
   content: string;
 };
 
+export type KeyInsight = {
+  insight: string;
+  type: 'positive' | 'negative' | 'neutral';
+  sectionId: string;
+}
+
 export type ReportData = {
   executiveSummary: string;
+  keyInsights: KeyInsight[];
   reportSections: ReportSection[];
   citations: string[];
 };
