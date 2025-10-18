@@ -26,6 +26,29 @@ LocalScope AI is an AI-powered local area insights platform for the UK. Users ca
 **Data Flow for Compare Mode**
 <img width="807" height="272" alt="3" src="https://github.com/user-attachments/assets/560397a5-44a0-4c20-8848-752210fae13a" />
 
+## Perplexity API was integrated
+
+LocalScope’s deep integration with Perplexity API brings next-generation AI research, data curation, and conversational intelligence to its platform. The system carefully manages authentication, model selection, real-time search augmentation, structured output formatting, and streaming for a robust, extensible, and reliable AI-powered workflow—well suited to both interactive and automated applications
+
+LocalScopeAI dynamically selects between a range of Perplexity models, including online versions (with real-time search) and offline chat models. Model IDs are cleaned programmatically to ensure correct transmission, stripping prefixes like "Perplexity/" or "perplexity." as needed before sending requests
+
+Real-Time Search and Data Enrichment
+LocalScopeAI1 leverages online-enabled Perplexity models for tasks requiring current web data, such as research and citation-based responses. When a prompt requires up-to-date knowledge, the API automatically performs live web searches and appends citations to the output
+
+Structured Output and Data Extraction
+To improve downstream integration—such as transferring AI decisions to subsequent modules—LocalScopeAI1 optimizes query prompts to ask for structured outputs (often JSON), utilizing the Instructor or Pydantic libraries. This methodology is pivotal for extracting and parsing entities like user information, addresses, or tabular data.
+
+Through modular design, LocalScopeAI incorporates Perplexity API calls within automated workflows:
+
+Endpoint Routing: A middleware function pipes requests to the correct Perplexity model using API key and validated payload.
+
+Streaming Support: Responses can be streamed for interactive user experiences, enhancing chatbot realism.
+
+Error Handling: Precise error reporting and retries are built-in for robust production use.
+
+Return Objects: The pipeline yields structured reply bodies, including citations, images, and summary information, suitable for system integration.
+________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
 ### 🧭 Interactive Report Dashboard
 - **Executive Summary:** Persona-tailored overview of the area (robust extraction, always plain text).
 - **Key Insights:** 5–6 actionable insights color-coded by sentiment (positive/green, negative/red, neutral/gray), clickable to scroll to relevant sections.
