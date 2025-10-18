@@ -7,10 +7,7 @@
  * - TextToSpeechOutput - The return type for the textToSpeech function.
  */
 
-import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import wav from 'wav';
-import { googleAI } from '@genkit-ai/google-genai';
 
 const TextToSpeechInputSchema = z.object({
   text: z.string().describe('The text to convert to speech.'),
@@ -24,72 +21,45 @@ const TextToSpeechOutputSchema = z.object({
 });
 export type TextToSpeechOutput = z.infer<typeof TextToSpeechOutputSchema>;
 
+import axios from "axios";
+
+/**
+ * ElevenLabs TTS integration.
+ */
 export async function textToSpeech(
   input: TextToSpeechInput
 ): Promise<TextToSpeechOutput> {
-  return textToSpeechFlow(input);
-}
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) throw new Error("ELEVENLABS_API_KEY is missing.");
 
-async function toWav(
-    pcmData: Buffer,
-    channels = 1,
-    rate = 24000,
-    sampleWidth = 2
-  ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const writer = new wav.Writer({
-        channels,
-        sampleRate: rate,
-        bitDepth: sampleWidth * 8,
-      });
-  
-      const bufs: any[] = [];
-      writer.on('error', reject);
-      writer.on('data', function (d) {
-        bufs.push(d);
-      });
-      writer.on('end', function () {
-        resolve(Buffer.concat(bufs).toString('base64'));
-      });
-  
-      writer.write(pcmData);
-      writer.end();
-    });
-  }
+  // Use a default ElevenLabs voice (Rachel, English, US)
+  const voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
 
-const textToSpeechFlow = ai.defineFlow(
-  {
-    name: 'textToSpeechFlow',
-    inputSchema: TextToSpeechInputSchema,
-    outputSchema: TextToSpeechOutputSchema,
-  },
-  async ({ text }) => {
-    const { media } = await ai.generate({
-        model: googleAI.model('gemini-2.5-flash-preview-tts'),
-        config: {
-          responseModalities: ['AUDIO'],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: 'Algenib' },
-            },
-          },
-        },
-        prompt: text,
-      });
-
-    if (!media) {
-      throw new Error('No audio was generated.');
+  const response = await axios.post(
+    url,
+    {
+      text: input.text,
+      model_id: "eleven_multilingual_v2",
+      voice_settings: {
+        stability: 0.5,
+        similarity_boost: 0.75,
+      },
+      output_format: "pcm_22050",
+    },
+    {
+      headers: {
+        "xi-api-key": apiKey,
+        "Content-Type": "application/json",
+        "Accept": "audio/wav",
+      },
+      responseType: "arraybuffer",
     }
+  );
 
-    const audioBuffer = Buffer.from(
-        media.url.substring(media.url.indexOf(',') + 1),
-        'base64'
-    );
-    
-    const wavBase64 = await toWav(audioBuffer);
-    
-    return {
-        audioDataUri: `data:audio/wav;base64,${wavBase64}`
-    };
-  }
-);
+  // Convert audio buffer to base64 data URI
+  const audioBase64 = Buffer.from(response.data).toString("base64");
+  return {
+    audioDataUri: `data:audio/wav;base64,${audioBase64}`,
+  };
+}

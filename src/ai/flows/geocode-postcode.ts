@@ -7,7 +7,7 @@
  * - GeocodePostcodeOutput - The return type for the geocodePostcode function.
  */
 
-import { ai } from '@/ai/genkit';
+import axios from 'axios';
 import { z } from 'genkit';
 
 const GeocodePostcodeInputSchema = z.object({
@@ -22,24 +22,39 @@ const GeocodePostcodeOutputSchema = z.object({
 export type GeocodePostcodeOutput = z.infer<typeof GeocodePostcodeOutputSchema>;
 
 export async function geocodePostcode(input: GeocodePostcodeInput): Promise<GeocodePostcodeOutput> {
-  return geocodePostcodeFlow(input);
-}
+  const postcode = encodeURIComponent(input.postcode.trim());
 
-const prompt = ai.definePrompt({
-  name: 'geocodePostcodePrompt',
-  input: { schema: GeocodePostcodeInputSchema },
-  output: { schema: GeocodePostcodeOutputSchema },
-  prompt: `Find the latitude and longitude for the following UK postcode: {{{postcode}}}. Return only the coordinates in the specified format.`,
-});
-
-const geocodePostcodeFlow = ai.defineFlow(
-  {
-    name: 'geocodePostcodeFlow',
-    inputSchema: GeocodePostcodeInputSchema,
-    outputSchema: GeocodePostcodeOutputSchema,
-  },
-  async input => {
-    const { output } = await prompt(input);
-    return output!;
+  // 1. Try postcodes.io
+  try {
+    const url = `https://api.postcodes.io/postcodes/${postcode}`;
+    const response = await axios.get(url);
+    if (response.data.status === 200 && response.data.result) {
+      return {
+        lat: response.data.result.latitude,
+        lng: response.data.result.longitude,
+      };
+    }
+  } catch (err) {
+    // Ignore and try Google as fallback
   }
-);
+
+  // 2. Fallback: Google Maps Geocoding API
+  const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
+  if (!googleApiKey) throw new Error('Google Maps API key is missing for fallback geocoding.');
+
+  const googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${postcode}&region=uk&key=${googleApiKey}`;
+  const googleResp = await axios.get(googleUrl);
+  if (
+    googleResp.data.status === "OK" &&
+    googleResp.data.results &&
+    googleResp.data.results.length > 0
+  ) {
+    const loc = googleResp.data.results[0].geometry.location;
+    return {
+      lat: loc.lat,
+      lng: loc.lng,
+    };
+  }
+
+  throw new Error('Could not geocode postcode (tried postcodes.io and Google Maps)');
+}

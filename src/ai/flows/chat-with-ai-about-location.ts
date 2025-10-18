@@ -7,8 +7,8 @@
  * - ChatWithAiAboutLocationOutput - The return type for the chatWithAiAboutLocation function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const ChatWithAiAboutLocationInputSchema = z.object({
   postcode: z.string().describe('The postcode of the location.'),
@@ -27,46 +27,44 @@ const ChatWithAiAboutLocationOutputSchema = z.object({
 });
 export type ChatWithAiAboutLocationOutput = z.infer<typeof ChatWithAiAboutLocationOutputSchema>;
 
-export async function chatWithAiAboutLocation(input: ChatWithAiAboutLocationInput): Promise<ChatWithAiAboutLocationOutput> {
-  return chatWithAiAboutLocationFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'chatWithAiAboutLocationPrompt',
-  input: {schema: ChatWithAiAboutLocationInputSchema},
-  output: {schema: ChatWithAiAboutLocationOutputSchema},
-  prompt: `You are an AI assistant specialized in providing information about UK locations based on a generated report. Use the report data to answer user questions accurately and concisely. Provide citations where possible.
+function buildPrompt(input: ChatWithAiAboutLocationInput): string {
+  const { reportData, chatHistory = [], question } = input;
+  let historyStr = '';
+  for (const entry of chatHistory) {
+    historyStr += entry.role === 'user'
+      ? `User: ${entry.content}\n`
+      : `Assistant: ${entry.content}\n`;
+  }
+  return `You are an AI assistant specialized in providing information about UK locations based on a generated report. Use the report data to answer user questions accurately and concisely. Provide citations where possible.
 
 Report Data:
-{{reportData}}
+${reportData}
 
 Chat History:
-{{#each chatHistory}}
-{{#ifEquals role "user"}}User: {{content}}{{
-else}}Assistant: {{content}}{{/ifEquals}}
-{{/each}}
+${historyStr}
 
-Question: {{question}}
+Question: ${question}
 
 Answer in a comprehensive manner, and if possible, cite the sources from the "Citations" section of the report data.
 
 Output should include the "answer" and "citations" fields as described in the output schema.
-`,
-  templateHelpers: {
-    ifEquals: function (arg1: any, arg2: any, options: any) {
-      return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
-    }
-  }
-});
+Return a JSON object with "answer" and "citations" (as an array of strings).`;
+}
 
-const chatWithAiAboutLocationFlow = ai.defineFlow(
-  {
-    name: 'chatWithAiAboutLocationFlow',
-    inputSchema: ChatWithAiAboutLocationInputSchema,
-    outputSchema: ChatWithAiAboutLocationOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+export async function chatWithAiAboutLocation(input: ChatWithAiAboutLocationInput): Promise<ChatWithAiAboutLocationOutput> {
+  const prompt = buildPrompt(input);
+  const { text } = await ai.generate({ prompt });
+  // Try to parse the response as JSON, fallback to plain text if parsing fails
+  try {
+    const parsed = JSON.parse(text);
+    return {
+      answer: parsed.answer || '',
+      citations: Array.isArray(parsed.citations) ? parsed.citations : [],
+    };
+  } catch {
+    return {
+      answer: text,
+      citations: [],
+    };
   }
-);
+}

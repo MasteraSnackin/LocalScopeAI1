@@ -66,6 +66,14 @@ export default function HomePage() {
             </AnimatedSection>
             <AnimatedSection className="fade-in animate-delay-500">
               <HeroSearch />
+              <div className="mt-6 flex justify-center">
+                <a
+                  href="/compare"
+                  className="inline-block rounded-lg bg-primary px-6 py-3 text-lg font-semibold text-white shadow-lg hover:bg-primary/90 transition"
+                >
+                  Compare Two Postcodes
+                </a>
+              </div>
             </AnimatedSection>
           </div>
         </section>

@@ -7,8 +7,7 @@
  * - TranscribeAudioOutput - The return type for the transcribeAudio function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { z } from 'genkit';
 
 const TranscribeAudioInputSchema = z.object({
   audioDataUri: z
@@ -24,31 +23,11 @@ const TranscribeAudioOutputSchema = z.object({
 });
 export type TranscribeAudioOutput = z.infer<typeof TranscribeAudioOutputSchema>;
 
+/**
+ * Not implemented: Please integrate with a real speech-to-text API such as OpenAI Whisper, Google Speech-to-Text, or AssemblyAI.
+ */
 export async function transcribeAudio(
   input: TranscribeAudioInput
 ): Promise<TranscribeAudioOutput> {
-  return transcribeAudioFlow(input);
+  throw new Error('Audio transcription is not implemented. Please integrate with a real speech-to-text API such as OpenAI Whisper, Google Speech-to-Text, or AssemblyAI.');
 }
-
-const prompt = ai.definePrompt(
-    {
-      name: 'transcribeAudioPrompt',
-      input: {schema: TranscribeAudioInputSchema},
-      output: {schema: TranscribeAudioOutputSchema},
-      prompt: `Transcribe the following audio recording.
-
-Audio: {{media url=audioDataUri}}`,
-    }
-  );
-
-const transcribeAudioFlow = ai.defineFlow(
-  {
-    name: 'transcribeAudioFlow',
-    inputSchema: TranscribeAudioInputSchema,
-    outputSchema: TranscribeAudioOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);

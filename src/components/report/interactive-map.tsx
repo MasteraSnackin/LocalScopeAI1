@@ -1,17 +1,31 @@
 'use client';
 
-import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { MapPin } from 'lucide-react';
 import { getCoordinates } from '@/lib/actions';
 import { Skeleton } from '../ui/skeleton';
 
-export default function InteractiveMap({ postcode }: { postcode: string }) {
+export interface MapLocation {
+  lat: number;
+  lng: number;
+  label: string;
+  type?: string;
+}
+
+export default function InteractiveMap({
+  postcode,
+  locations = [],
+}: {
+  postcode: string;
+  locations?: MapLocation[];
+}) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeMarker, setActiveMarker] = useState<number | null>(null);
 
   useEffect(() => {
     const getCoords = async () => {
@@ -71,6 +85,28 @@ export default function InteractiveMap({ postcode }: { postcode: string }) {
           disableDefaultUI={true}
         >
           <Marker position={center} />
+          {locations.map((loc, idx) => (
+            <>
+              <Marker
+                key={idx}
+                position={{ lat: loc.lat, lng: loc.lng }}
+                onClick={() => setActiveMarker(idx)}
+                title={loc.label}
+              />
+              {activeMarker === idx && (
+                <InfoWindow
+                  key={`info-${idx}`}
+                  position={{ lat: loc.lat, lng: loc.lng }}
+                  onCloseClick={() => setActiveMarker(null)}
+                >
+                  <div>
+                    <strong>{loc.label}</strong>
+                    {loc.type && <div className="text-xs text-muted-foreground">{loc.type}</div>}
+                  </div>
+                </InfoWindow>
+              )}
+            </>
+          ))}
         </Map>
       </APIProvider>
     </div>

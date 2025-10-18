@@ -8,10 +8,11 @@ interface ChatRootProps {
   postcode: string;
   reportSummary: string;
   initialQuestions: string[];
+  openByDefault?: boolean;
 }
 
-export default function ChatRoot({ postcode, reportSummary, initialQuestions }: ChatRootProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function ChatRoot({ postcode, reportSummary, initialQuestions, openByDefault = false }: ChatRootProps) {
+  const [isOpen, setIsOpen] = useState(openByDefault);
 
   return (
     <>

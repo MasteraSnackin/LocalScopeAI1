@@ -32,12 +32,14 @@ export default function CrimeChart() {
               cx="50%"
               cy="50%"
               labelLine={false}
+              label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
               innerRadius={60}
               outerRadius={100}
               fill="#8884d8"
               paddingAngle={5}
               dataKey="value"
               nameKey="name"
+              aria-label="Crime type distribution"
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

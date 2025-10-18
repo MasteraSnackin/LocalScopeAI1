@@ -1,6 +1,6 @@
 "use client"
 
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts"
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Legend } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 const data = [
@@ -23,15 +23,26 @@ export default function HousePriceChart() {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
+            <XAxis dataKey="month" label={{ value: "Month", position: "insideBottomRight", offset: -5 }} />
             <YAxis 
                 tickFormatter={(value) => `£${(value / 1000)}k`} 
                 domain={['dataMin - 10000', 'dataMax + 10000']}
+                label={{ value: "Avg Price", angle: -90, position: "insideLeft" }}
             />
             <Tooltip
               formatter={(value: number) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(value)}
             />
-            <Line type="monotone" dataKey="price" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
+            <Legend verticalAlign="top" height={36} />
+            <Line
+              type="monotone"
+              dataKey="price"
+              name="Average Price"
+              stroke="hsl(var(--primary))"
+              strokeWidth={2}
+              dot={{ r: 4, fill: "hsl(var(--primary))" }}
+              activeDot={{ r: 6 }}
+              aria-label="House price trend line"
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>

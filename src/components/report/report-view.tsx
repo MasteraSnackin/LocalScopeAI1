@@ -19,6 +19,7 @@ import ChatRoot from "../chat/chat-root";
 import { useToast } from "@/hooks/use-toast";
 import { exportToPdf } from "@/lib/pdf-export";
 import KeyInsights from "./key-insights";
+import WhatsNew from "./whats-new";
 
 interface ReportViewProps {
     postcode: string;
@@ -122,12 +123,44 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
   
   const createSectionId = (title: string) => title.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-');
 
-  const mainSections = report.reportSections.slice(0, 4);
-  const otherSections = report.reportSections.slice(4);
+  // Defensive filter: only sections with a valid string title
+  const validSections = (report.reportSections || []).filter(
+    section => section && typeof section.title === "string"
+  );
+
+  // Ensure crime section is always in mainSections
+  let mainSections = validSections.slice(0, 4);
+  let otherSections = validSections.slice(4);
+
+  const crimeIndex = validSections.findIndex(section =>
+    section.title.toLowerCase().includes("crime")
+  );
+  if (crimeIndex >= 0 && crimeIndex >= 4) {
+    // Move crime section into mainSections, push last mainSection to others
+    const crimeSection = validSections[crimeIndex];
+    mainSections = [
+      ...validSections.slice(0, 3),
+      crimeSection
+    ];
+    otherSections = [
+      ...validSections.slice(4, crimeIndex),
+      ...validSections.slice(crimeIndex + 1)
+    ];
+    // If the original 4th section wasn't crime, add it to others
+    if (!validSections[3].title.toLowerCase().includes("crime")) {
+      otherSections.unshift(validSections[3]);
+    }
+  }
 
   return (
     <>
-      <div id="report-content" className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+      <div
+        id="report-content"
+        className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8"
+        aria-label="Local area report"
+        tabIndex={-1}
+      >
+        <WhatsNew postcode={postcode} />
         <SectionWrapper id="summary">
           <ExecutiveSummary summary={report.executiveSummary} />
         </SectionWrapper>
@@ -138,8 +171,8 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
           </SectionWrapper>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="md:col-span-2 lg:col-span-2 space-y-8">
             {mainSections.map((section, index) => (
                <SectionWrapper key={index} id={createSectionId(section.title)}>
                   <Card>
@@ -159,7 +192,7 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
               </SectionWrapper>
             ))}
           </div>
-          <div className="lg:col-span-1 space-y-8">
+          <div className="md:col-span-2 lg:col-span-1 space-y-8">
              <SectionWrapper id="map">
                 <Card>
                   <CardHeader>
@@ -176,12 +209,14 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
                         <CardTitle>Additional Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {otherSections.map((section, index) => (
+                        {otherSections.map((section, index) =>
+                          section && typeof section.title === "string" ? (
                             <div key={index} id={createSectionId(section.title)}>
                                 <ReportSection section={section} />
                                 {index < otherSections.length - 1 && <hr className="my-6"/>}
                             </div>
-                        ))}
+                          ) : null
+                        )}
                     </CardContent>
                 </Card>
              )}
@@ -194,6 +229,7 @@ export default function ReportView({ postcode, persona }: ReportViewProps) {
         postcode={postcode} 
         reportSummary={report.executiveSummary} 
         initialQuestions={initialQuestions}
+        openByDefault={true}
       />
     </>
   );
