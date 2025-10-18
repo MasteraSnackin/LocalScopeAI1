@@ -235,8 +235,11 @@ Example:
 
 ## 🧑‍💻 Contributing
 
-Pull requests and issues are welcome! Please open an issue to discuss your proposed changes.
+Ye (Claire) Sheng 
+https://github.com/Claire356
 
+Dave Cheng
+https://github.com/MasteraSnackin/
 ---
 
 ## 📄 License
