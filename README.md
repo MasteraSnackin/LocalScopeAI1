@@ -4,6 +4,13 @@ LocalScope AI is an AI-powered local area insights platform for the UK. Users ca
 
 ---
 
+**High-Level Architecture**
+<img width="1145" height="581" alt="1" src="https://github.com/user-attachments/assets/d3c202bb-abb4-4522-8e4a-711154727a98" />
+
+**Sequence Diagram""
+<img width="1010" height="742" alt="2" src="https://github.com/user-attachments/assets/12ad05d4-2252-4bdc-a356-2d7a4cd6ebb3" />
+
+
 ## 🚀 Features
 
 ### 🌍 Core Functionality
@@ -15,6 +22,9 @@ LocalScope AI is an AI-powered local area insights platform for the UK. Users ca
   - Local schools and Ofsted ratings
   - Transport links and infrastructure
   - Climate and sustainability data
+
+**Data Flow for Compare Mode**
+<img width="807" height="272" alt="3" src="https://github.com/user-attachments/assets/560397a5-44a0-4c20-8848-752210fae13a" />
 
 ### 🧭 Interactive Report Dashboard
 - **Executive Summary:** Persona-tailored overview of the area (robust extraction, always plain text).
@@ -28,6 +38,10 @@ LocalScope AI is an AI-powered local area insights platform for the UK. Users ca
   - School ratings (bar chart, interactive)
 - **Source Citations:** All data includes source names and dates, shown in an expandable accordion.
 - **Export to PDF:** Save the full report view using jsPDF + html2canvas.
+
+**Entity-Relationship Diagram**
+<img width="1002" height="795" alt="4" src="https://github.com/user-attachments/assets/6cb4e623-35df-42c5-b6d1-6ed22003ae00" />
+
 
 ### 🤖 AI Chat Assistant
 - Floating chat bubble opens a slide-out chat panel (expanded by default for discoverability).
