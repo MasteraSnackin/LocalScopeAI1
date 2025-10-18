@@ -237,9 +237,12 @@ Example:
 
 Ye (Claire) Sheng 
 https://github.com/Claire356
+https://www.linkedin.com/in/ye-sheng-8940aa260/
 
 Dave Cheng
 https://github.com/MasteraSnackin/
+https://www.linkedin.com/in/davecheng82/
+
 ---
 
 ## 📄 License
